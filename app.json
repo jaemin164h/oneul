@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "오늘",
+    "slug": "oneul",
+    "scheme": "oneul",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSMotionUsageDescription": "오늘의 걸음을 자동으로 세기 위해 동작 및 피트니스 데이터가 필요합니다."
+      }
+    },
+    "android": {
+      "package": "com.oneul.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#F2F2F7",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["android.permission.ACTIVITY_RECOGNITION"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "오늘의 걸음을 자동으로 세기 위해 동작 및 피트니스 데이터가 필요합니다."
+        }
+      ]
+    ]
+  }
+}
