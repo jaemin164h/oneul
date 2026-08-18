@@ -1,4 +1,11 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { Card } from '../../src/components/Card';
 import { MetricTile } from '../../src/components/MetricTile';
@@ -17,11 +24,32 @@ import { useWalk } from '../../src/lib/WalkContext';
 import { colors, radii } from '../../src/theme';
 
 export default function TodayScreen() {
-  const { permission, requestPermission, settings, steps } = useWalk();
+  const {
+    canAskPermissionAgain,
+    permission,
+    ready,
+    requestPermission,
+    settings,
+    steps,
+    storageError,
+  } = useWalk();
   const km = stepsToKm(steps, settings.strideCm);
   const minutes = stepsToMinutes(steps);
   const kcal = stepsToKcal(steps);
   const progress = settings.goal > 0 ? steps / settings.goal : 0;
+
+  if (!ready) {
+    return (
+      <Screen eyebrow={formatLongDate()} title="오늘">
+        <View style={styles.loading}>
+          <ActivityIndicator
+            accessibilityLabel="걸음 정보를 불러오는 중"
+            color={colors.accent}
+          />
+        </View>
+      </Screen>
+    );
+  }
 
   return (
     <Screen eyebrow={formatLongDate()} title="오늘">
@@ -32,15 +60,29 @@ export default function TodayScreen() {
         {permission === 'denied' ? (
           <Notice
             title="동작 접근이 필요합니다"
-            body="오늘의 걸음을 자동으로 세기 위해 동작 및 피트니스 권한을 허용해 주세요."
-            action="허용하기"
-            onPress={() => void requestPermission()}
+            body={
+              canAskPermissionAgain
+                ? '오늘의 걸음을 자동으로 세기 위해 동작 및 피트니스 권한을 허용해 주세요.'
+                : '기기 설정에서 오늘의 동작 및 피트니스 권한을 허용해 주세요.'
+            }
+            action={canAskPermissionAgain ? '허용하기' : '설정 열기'}
+            onPress={() =>
+              void (canAskPermissionAgain
+                ? requestPermission()
+                : Linking.openSettings())
+            }
           />
         ) : null}
         {permission === 'unavailable' ? (
           <Notice
             title="이 기기에서는 걸음을 셀 수 없습니다"
             body="실제 iPhone이나 Android에서 Expo Go로 열면 만보기가 동작합니다. 시뮬레이터는 센서가 없습니다."
+          />
+        ) : null}
+        {storageError ? (
+          <Notice
+            title="기록을 저장하지 못했습니다"
+            body="기기 저장 공간을 확인해 주세요. 앱이 실행되는 동안 다시 저장을 시도합니다."
           />
         ) : null}
 
@@ -71,6 +113,11 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
     paddingBottom: 32,
+  },
+  loading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   hero: {
     paddingVertical: 28,

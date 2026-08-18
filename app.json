@@ -23,7 +23,9 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "permissions": ["android.permission.ACTIVITY_RECOGNITION"]
+      "permissions": [
+        "android.permission.ACTIVITY_RECOGNITION"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -36,7 +38,8 @@
         {
           "motionPermission": "오늘의 걸음을 자동으로 세기 위해 동작 및 피트니스 데이터가 필요합니다."
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }

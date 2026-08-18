@@ -16,7 +16,12 @@ export function Notice({ title, body, action, onPress }: Props) {
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.body}>{body}</Text>
       {action && onPress ? (
-        <Pressable onPress={onPress} style={styles.button}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={action}
+          onPress={onPress}
+          style={styles.button}
+        >
           <Text style={styles.buttonText}>{action}</Text>
         </Pressable>
       ) : null}

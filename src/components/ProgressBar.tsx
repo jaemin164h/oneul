@@ -9,7 +9,16 @@ type Props = {
 export function ProgressBar({ progress }: Props) {
   const ratio = Math.max(0, Math.min(progress, 1));
   return (
-    <View style={styles.track}>
+    <View
+      accessibilityRole="progressbar"
+      accessibilityLabel="일일 걸음 목표 진행률"
+      accessibilityValue={{
+        min: 0,
+        max: 100,
+        now: Math.round(ratio * 100),
+      }}
+      style={styles.track}
+    >
       <View
         style={[
           styles.fill,

@@ -9,8 +9,10 @@ import {
 } from 'react-native';
 
 import { Card } from '../../src/components/Card';
+import { Notice } from '../../src/components/Notice';
 import { Screen } from '../../src/components/Screen';
 import { formatNumber } from '../../src/lib/metrics';
+import { settingsLimits } from '../../src/lib/storage';
 import { useWalk } from '../../src/lib/WalkContext';
 import { colors } from '../../src/theme';
 
@@ -19,21 +21,35 @@ function StepperRow({
   value,
   onMinus,
   onPlus,
+  valueLabel,
 }: {
   label: string;
   value: string;
   onMinus: () => void;
   onPlus: () => void;
+  valueLabel: string;
 }) {
   return (
     <View style={styles.row}>
       <Text style={styles.label}>{label}</Text>
       <View style={styles.stepper}>
-        <Pressable onPress={onMinus} style={styles.stepBtn} hitSlop={8}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`${label} 줄이기, 현재 ${valueLabel}`}
+          onPress={onMinus}
+          style={styles.stepBtn}
+          hitSlop={8}
+        >
           <Text style={styles.stepBtnText}>−</Text>
         </Pressable>
         <Text style={styles.value}>{value}</Text>
-        <Pressable onPress={onPlus} style={styles.stepBtn} hitSlop={8}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`${label} 늘리기, 현재 ${valueLabel}`}
+          onPress={onPlus}
+          style={styles.stepBtn}
+          hitSlop={8}
+        >
           <Text style={styles.stepBtnText}>+</Text>
         </Pressable>
       </View>
@@ -42,7 +58,7 @@ function StepperRow({
 }
 
 export default function SettingsScreen() {
-  const { settings, updateSettings, resetHistory } = useWalk();
+  const { settings, storageError, updateSettings, resetHistory } = useWalk();
   const [busy, setBusy] = useState(false);
 
   const confirmReset = () => {
@@ -65,40 +81,71 @@ export default function SettingsScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
+        {storageError ? (
+          <Notice
+            title="설정을 저장하지 못했습니다"
+            body="기기 저장 공간을 확인한 뒤 다시 시도해 주세요."
+          />
+        ) : null}
         <Card style={styles.group}>
           <StepperRow
             label="일일 목표"
             value={formatNumber(settings.goal)}
+            valueLabel={`${formatNumber(settings.goal)}걸음`}
             onMinus={() =>
-              void updateSettings({
-                goal: Math.max(1000, settings.goal - 500),
-              })
+              void updateSettings((current) => ({
+                ...current,
+                goal: Math.max(
+                  settingsLimits.goal.min,
+                  current.goal - 500,
+                ),
+              }))
             }
             onPlus={() =>
-              void updateSettings({
-                goal: Math.min(30000, settings.goal + 500),
-              })
+              void updateSettings((current) => ({
+                ...current,
+                goal: Math.min(
+                  settingsLimits.goal.max,
+                  current.goal + 500,
+                ),
+              }))
             }
           />
           <View style={styles.separator} />
           <StepperRow
             label="보폭"
             value={`${settings.strideCm} cm`}
+            valueLabel={`${settings.strideCm}센티미터`}
             onMinus={() =>
-              void updateSettings({
-                strideCm: Math.max(50, settings.strideCm - 1),
-              })
+              void updateSettings((current) => ({
+                ...current,
+                strideCm: Math.max(
+                  settingsLimits.strideCm.min,
+                  current.strideCm - 1,
+                ),
+              }))
             }
             onPlus={() =>
-              void updateSettings({
-                strideCm: Math.min(110, settings.strideCm + 1),
-              })
+              void updateSettings((current) => ({
+                ...current,
+                strideCm: Math.min(
+                  settingsLimits.strideCm.max,
+                  current.strideCm + 1,
+                ),
+              }))
             }
           />
         </Card>
 
         <Card style={styles.group}>
-          <Pressable onPress={confirmReset} disabled={busy} style={styles.row}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="지난 걸음 기록 지우기"
+            accessibilityState={{ disabled: busy }}
+            onPress={confirmReset}
+            disabled={busy}
+            style={styles.row}
+          >
             <Text style={styles.destructive}>기록 지우기</Text>
           </Pressable>
         </Card>

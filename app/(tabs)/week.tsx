@@ -30,8 +30,14 @@ export default function WeekScreen() {
             {week.map((day) => {
               const height = 18 + (day.steps / max) * 120;
               const reached = day.steps >= settings.goal;
+              const weekday = weekdayLabel(parseDateKey(day.key));
               return (
-                <View key={day.key} style={styles.barCol}>
+                <View
+                  accessible
+                  accessibilityLabel={`${weekday}요일 ${formatNumber(day.steps)}걸음${reached ? ', 목표 달성' : ''}`}
+                  key={day.key}
+                  style={styles.barCol}
+                >
                   <Text style={styles.barValue}>
                     {day.steps >= 1000
                       ? `${Math.round(day.steps / 100) / 10}k`
@@ -47,7 +53,7 @@ export default function WeekScreen() {
                     ]}
                   />
                   <Text style={styles.barLabel}>
-                    {weekdayLabel(parseDateKey(day.key))}
+                    {weekday}
                   </Text>
                 </View>
               );
